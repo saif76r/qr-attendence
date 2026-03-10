@@ -1,20 +1,26 @@
-from flask import Flask, render_template, request
-import sqlite3, os
+kfrom flask import Flask, render_template, request
+import sqlite3
+import os
 from datetime import datetime, date
-import qrcode, io, base64
+import qrcode
+import base64
+from io import BytesIO
 
 app = Flask(__name__)
 
-# Absolute DB path
-DB_NAME = os.path.join(os.path.dirname(__file__), "database.db")
+DB_NAME = "database.db"
 
-# Render public URL
-BASE_URL = "https://qr-attendence-and-registration.onrender.com"
+# -----------------------------
+# IMPORTANT: Put your Render public URL here
+RENDER_URL = "https://qr-attendence-and-registration.onrender.com"
 
+# -----------------------------
 # Initialize DB
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
+
+    # Users table
     c.execute("""
         CREATE TABLE IF NOT EXISTS users (
             name TEXT,
@@ -23,6 +29,8 @@ def init_db():
             time TEXT
         )
     """)
+
+    # Attendance table
     c.execute("""
         CREATE TABLE IF NOT EXISTS attendance (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,15 +41,16 @@ def init_db():
             FOREIGN KEY(user_phone) REFERENCES users(phone)
         )
     """)
+
     conn.commit()
     conn.close()
 
-# Registration
-@app.route("/register", methods=["GET","POST"])
+# -----------------------------
+# Registration Page
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    qr_base64 = None
-    message = None
-    if request.method=="POST":
+
+    if request.method == "POST":
         name = request.form.get("name")
         phone = request.form.get("phone")
         email = request.form.get("email")
@@ -49,57 +58,88 @@ def register():
 
         conn = sqlite3.connect(DB_NAME)
         c = conn.cursor()
-        c.execute("INSERT OR IGNORE INTO users (name,phone,email,time) VALUES (?,?,?,?)",
-                  (name, phone, email, reg_time))
+
+        c.execute(
+            "INSERT OR IGNORE INTO users (name, phone, email, time) VALUES (?,?,?,?)",
+            (name, phone, email, reg_time)
+        )
         conn.commit()
         conn.close()
 
         event_name = "SampleEvent"
-        qr_data = f"{BASE_URL}/mark_attendance/{phone}/{event_name}"
 
-        # QR base64
+        # QR data with Render URL
+        qr_data = f"{RENDER_URL}/mark_attendance/{phone}/{event_name}"
+
+        # Generate QR
         qr_img = qrcode.make(qr_data)
-        buf = io.BytesIO()
-        qr_img.save(buf, format="PNG")
-        qr_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        buffered = BytesIO()
+        qr_img.save(buffered, format="PNG")
+        qr_base64 = base64.b64encode(buffered.getvalue()).decode()
 
-        message = "Registration Successful!"
+        return render_template(
+            "register.html",
+            message="Registration Successful!",
+            qr_base64=qr_base64
+        )
 
-    return render_template("register.html", message=message, qr_base64=qr_base64)
+    return render_template("register.html")
 
-# Mark attendance
+
+# -----------------------------
+# Attendance Mark Route
 @app.route("/mark_attendance/<phone>/<event_name>")
-def mark_attendance(phone,event_name):
+def mark_attendance(phone, event_name):
+
     today = date.today().isoformat()
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    c.execute("SELECT * FROM attendance WHERE user_phone=? AND event_name=? AND date=?",
-              (phone,event_name,today))
+
+    # Check if already marked
+    c.execute(
+        "SELECT * FROM attendance WHERE user_phone=? AND event_name=? AND date=?",
+        (phone, event_name, today)
+    )
+
     data = c.fetchone()
+
     if data:
         conn.close()
         return f"Attendance already marked for {phone}!"
-    c.execute("INSERT INTO attendance (user_phone,event_name,date) VALUES (?,?,?)",
-              (phone,event_name,today))
+
+    # Insert attendance
+    c.execute(
+        "INSERT INTO attendance (user_phone,event_name,date) VALUES (?,?,?)",
+        (phone, event_name, today)
+    )
+
     conn.commit()
     conn.close()
+
     return f"Attendance marked for {phone} for {event_name} on {today}!"
 
-# Attendance report
+
+# -----------------------------
+# Attendance Report
 @app.route("/attendance_report")
 def attendance_report():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
+
     c.execute("""
         SELECT users.name, users.phone, attendance.event_name,
                attendance.date, attendance.status
         FROM attendance
         JOIN users ON attendance.user_phone = users.phone
     """)
+
     data = c.fetchall()
     conn.close()
+
     return render_template("attendance_report.html", data=data)
 
-if __name__=="__main__":
+
+# -----------------------------
+if __name__ == "__main__":
     init_db()
     app.run(debug=True, host="0.0.0.0", port=5000)

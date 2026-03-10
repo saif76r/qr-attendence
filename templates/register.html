@@ -1,24 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Register</title>
-<style>
-body{font-family:sans-serif; background:#f0f0f0; padding:20px;}
-form{background:#fff;padding:20px;border-radius:10px; width:300px;}
-input{display:block;margin:10px 0; padding:8px;width:100%;}
-button{padding:10px; background:green;color:white;border:none;border-radius:5px;}
-img{margin-top:20px;width:200px;height:200px;}
-</style>
+    <meta charset="UTF-8">
+    <title>QR Registration</title>
+    <style>
+        /* ====== Basic Reset ====== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"], input[type="email"], input[type="tel"] {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+            border-color: #6C63FF;
+            box-shadow: 0 0 5px rgba(108, 99, 255, 0.4);
+        }
+
+        button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: #6C63FF;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #5b52d6;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: green;
+        }
+
+        .qr-code {
+            margin-top: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
-<h2>Register</h2>
-<form method="post">
-<input type="text" name="name" placeholder="Name" required>
-<input type="text" name="phone" placeholder="Phone" required>
-<input type="email" name="email" placeholder="Email" required>
-<button type="submit">Register</button>
-</form>
-{% if message %}<p>{{ message }}</p>{% endif %}
-{% if qr_base64 %}<img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code">{% endif %}
+
+<div class="container">
+    <h1>Student Registration</h1>
+
+    {% if message %}
+        <div class="message">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="tel" name="phone" placeholder="Phone Number" required>
+        <input type="email" name="email" placeholder="Email Address" required>
+        <button type="submit">Register</button>
+    </form>
+
+    {% if qr_base64 %}
+        <div class="qr-code">
+            <p>Scan this QR for attendance:</p>
+            <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code">
+        </div>
+    {% endif %}
+</div>
+
 </body>
 </html>
