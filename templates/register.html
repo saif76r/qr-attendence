@@ -1,23 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Registration</title>
+    <meta charset="UTF-8">
+    <title>QR Attendance Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 400px;
+        }
+        h2 {
+            color: #2f3640;
+        }
+        form input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #dcdde1;
+            font-size: 14px;
+        }
+        form button {
+            width: 95%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: #273c75;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        form button:hover {
+            background: #192a56;
+        }
+        .message {
+            color: green;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .qr-container {
+            margin-top: 20px;
+        }
+        .qr-container img {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Registration</h2>
-    {% if message %}
-        <p>{{ message }}</p>
-    {% endif %}
-    <form method="POST">
-        Name: <input type="text" name="name" required><br>
-        Phone: <input type="text" name="phone" required><br>
-        Email: <input type="email" name="email" required><br>
-        <button type="submit">Register</button>
-    </form>
+    <div class="container">
+        <h2>Register for Attendance</h2>
+        <form method="POST">
+            <input type="text" name="name" placeholder="Name" required><br>
+            <input type="text" name="phone" placeholder="Phone" required><br>
+            <input type="email" name="email" placeholder="Email" required><br>
+            <button type="submit">Register</button>
+        </form>
 
-    {% if qr_base64 %}
-        <h3>Scan this QR to mark attendance:</h3>
-        <img src="data:image/png;base64,{{ qr_base64 }}">
-    {% endif %}
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+
+        {% if qr_base64 %}
+            <div class="qr-container">
+                <h3>Scan QR for Attendance</h3>
+                <img src="data:image/png;base64,{{ qr_base64 }}">
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>
