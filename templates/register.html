@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; color: #333; }
+        form { display: flex; flex-direction: column; }
+        input[type="text"], input[type="email"] {
+            padding: 12px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover { background-color: #45a049; }
+        p.message { color: green; font-weight: bold; text-align: center; }
+        .qr-code { display: block; margin: 20px auto; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Event Registration</h2>
+        
+            
+        
+        <form method="POST">
+            Name: <input type="text" name="name" required>
+            Phone: <input type="text" name="phone" required>
+            Email: <input type="email" name="email">
+            <input type="submit" value="Register">
+        </form>
+
+        
+            <h3>Scan this QR to mark attendance:</h3>
+            <img src="{{ qr_path }}" alt="QR Code" class="qr-code">
+    
+    </div>
+</body>
+</html>
